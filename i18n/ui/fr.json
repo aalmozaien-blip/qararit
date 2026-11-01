@@ -44,7 +44,7 @@
   "search.heading": "Rechercher",
   "search.placeholder": "Tapez un mot du hadith ou de son titre",
   "search.empty": "Aucun résultat. Essayez un autre mot, par exemple : Paradis, prière, jeûne.",
-  "foot.sources": "Les liens de référence renvoient vers sunnah.com. Pour proposer une correction ou un hadith, contactez l'équipe du projet.",
+  "foot.sources": "Les liens de référence renvoient vers sunnah.com. Pour proposer une correction ou un hadith, écrivez-nous à l'adresse ci-dessous.",
   "card.role": "carte de hadith",
   "card.narrator": "Rapporté par {name}",
   "card.dorar": "Texte arabe tiré de Dorar.net",
@@ -135,5 +135,6 @@
   "sep.list": ", ",
   "tr.dismiss": "Fermer",
   "tr.browser_offer": "Ce site existe aussi en français.",
-  "foot.privacy": "Confidentialité et mesure d’audience"
+  "foot.privacy": "Confidentialité et mesure d’audience",
+  "foot.contact": "Contact et remarques :"
 }

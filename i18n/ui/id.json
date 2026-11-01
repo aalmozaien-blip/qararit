@@ -44,7 +44,7 @@
   "search.heading": "Cari",
   "search.placeholder": "Ketik kata dari hadis atau judulnya",
   "search.empty": "Tidak ada hasil. Coba kata lain, misalnya: surga, salat, puasa.",
-  "foot.sources": "Tautan rujukan mengarah ke sunnah.com. Untuk mengusulkan koreksi atau hadis, hubungi tim proyek.",
+  "foot.sources": "Tautan rujukan mengarah ke sunnah.com. Untuk mengusulkan koreksi atau hadis, kirim email ke alamat di bawah.",
   "card.role": "kartu hadis",
   "card.narrator": "Diriwayatkan oleh {name}",
   "card.dorar": "Teks Arab dari Dorar.net",
@@ -134,5 +134,6 @@
   "sep.list": ", ",
   "tr.dismiss": "Tutup",
   "tr.browser_offer": "Situs ini juga tersedia dalam Bahasa Indonesia.",
-  "foot.privacy": "Privasi & analitik"
+  "foot.privacy": "Privasi & analitik",
+  "foot.contact": "Kontak & masukan:"
 }

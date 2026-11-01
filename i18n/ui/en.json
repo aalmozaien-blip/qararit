@@ -44,7 +44,7 @@
   "search.heading": "Search",
   "search.placeholder": "Type a word from a hadith or its title",
   "search.empty": "No results. Try another word, such as: Paradise, prayer, fasting.",
-  "foot.sources": "Reference links point to sunnah.com. To suggest a correction or a hadith, contact the project team.",
+  "foot.sources": "Reference links point to sunnah.com. To suggest a correction or a hadith, email us at the address below.",
   "card.role": "hadith card",
   "card.narrator": "Narrated by {name}",
   "card.dorar": "Arabic text from Dorar.net",
@@ -135,5 +135,6 @@
   "sep.list": ", ",
   "tr.dismiss": "Dismiss",
   "tr.browser_offer": "This site is also available in English.",
-  "foot.privacy": "Privacy & analytics"
+  "foot.privacy": "Privacy & analytics",
+  "foot.contact": "Contact & feedback:"
 }
