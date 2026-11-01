@@ -424,9 +424,13 @@
           rpc("add_local_participant", { p_family: S.famId, p_display_name: name.value, p_pin: pin.value || null }).then(function (r) {
             return loadFamily(S.famId).then(function () {
               setPartLang(S.famId, r.participant_id, lang.value);
-              setCurrent(r.participant_id); closeDialog();
-              if (r.recovery_code) showRecovery(r.recovery_code, name.value.trim(), function () { render(true); });
-              else { var nm = name.value.trim(); render(true).then(function () { toast(T("أُضيف {name} وأصبح المشارك الحالي", { name: nm })); }); }
+              // المسؤول يضيف أفراد أسرته فيبقى هو المشارك الحالي ليبدأ التحدي؛ وغيره يضيف نفسه فيصير هو الحالي
+              var keepAdmin = isAdmin();
+              if (!keepAdmin) setCurrent(r.participant_id);
+              closeDialog();
+              var nm = name.value.trim(), msgAdded = keepAdmin ? T("أُضيف {name}", { name: nm }) : T("أُضيف {name} وأصبح المشارك الحالي", { name: nm });
+              if (r.recovery_code) showRecovery(r.recovery_code, nm, function () { render(true); });
+              else render(true).then(function () { toast(msgAdded); });
             });
           }, function (e) { msg.hidden = false; msg.textContent = errText(e); });
         } }, T("إضافة"))));

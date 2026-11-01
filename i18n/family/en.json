@@ -62,6 +62,7 @@
  "يمنع غيره من الإجابة باسمه على الجهاز المشترك.": "Stops anyone else from answering in their name on a shared device.",
  "لغته في التحدي": "Their language in the challenge",
  "أُضيف {name} وأصبح المشارك الحالي": "{name} was added and is now the current participant",
+ "أُضيف {name}": "{name} was added",
  "إضافة": "Add",
  "رمز الاستعادة لـ{name}": "Recovery code for {name}",
  "رمز الاستعادة": "Recovery code",
