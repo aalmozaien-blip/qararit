@@ -52,7 +52,6 @@ async function context({ debug = true, live = false, dnt = false, blockTracker =
     let body = Buffer.from(await r.arrayBuffer());
     if (live && u.pathname.endsWith("/analytics.js")) body = Buffer.from(body.toString().replace('websiteId: ""', 'websiteId: "test-website"'));
     // الأسئلة كلها بانتظار اعتماد المراجع، فنفعّل أسئلة المعاينة في الاختبار فقط حتى يمكن إنشاء تحدٍّ
-    if (u.pathname.endsWith("/family/config.js")) body = Buffer.from(body.toString().replace("localPilotQuestions: false", "localPilotQuestions: true"));
     await route.fulfill({ status: r.status, body, headers: { "content-type": r.headers.get("content-type") || "text/html" } });
   });
   await ctx.route("https://cloud.umami.is/**", (route) => {
