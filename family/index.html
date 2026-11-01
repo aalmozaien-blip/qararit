@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>تحدي الأسرة | لِنغتنم الأجر</title>
+<!-- المجالس خاصة: لا فهرسة ولا أرشفة، ولا يُرسل عنوان الصفحة (وفيه رمز الدعوة بعد #) إلى مواقع أخرى -->
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#1d4f40">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="family.css">
+<script src="../i18n/locales.js"></script>
+<script src="../i18n.js"></script>
+</head>
+<body>
+<div class="app family">
+  <header class="topbar">
+    <a class="brand" id="brand" href="../" aria-label="العودة إلى متصفح الأحاديث">لقد فرّطنا في قراريط كثيرة</a>
+    <div class="tools">
+      <div id="lang-picker"></div>
+      <button class="icon-btn text" id="btn-font-down" type="button" aria-label="تصغير الخط"><span class="font-glyph">أ</span><small>−</small></button>
+      <button class="icon-btn text" id="btn-font-up" type="button" aria-label="تكبير الخط"><span class="font-glyph">أ</span><small>+</small></button>
+    </div>
+  </header>
+  <main id="main" tabindex="-1" aria-live="polite"><p class="loading">جارٍ التحميل…</p></main>
+  <footer class="foot">
+    <p id="foot-note">نقاط التحدي تقيس المشاركة والإجابات داخل مجلسكم فقط، ولا تعبّر عن الأجر أو المنزلة عند الله.</p>
+  </footer>
+</div>
+<dialog id="dlg" class="dlg" aria-labelledby="dlg-title"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="config.js"></script>
+<script src="local.js"></script>
+<script src="family.js"></script>
+</body>
+</html>
