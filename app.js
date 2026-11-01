@@ -38,6 +38,10 @@
   var content = {};   // lang -> data/content/<lang>.json بعد تحميله
 
   var $ = function (id) { return document.getElementById(id); };
+  // القياس (analytics.js): أحداث مجمعة بلا هوية. إن لم يكن محمّلًا أو كان معطّلًا لا يحدث شيء
+  var QA = window.QA || { track: function () {}, once: function () {}, fail: function () {} };
+  var navSource = "home"; // كيف وصل الزائر إلى البطاقة المعروضة الآن: يُرسل مع حدث ظهورها
+  function hp(h, extra) { return Object.assign({ hadith_id: h.id, lang: I.lang, category_id: h.categories[0], hadith_lang: h.id + "__" + I.lang }, extra || {}); }
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   function isAr() { return I.lang === I.reg.source; }
   function ltr() { return I.dir === "ltr"; }
@@ -346,7 +350,7 @@
       syncFaces();
       $("counter").textContent = t("nav.counter", { i: "–", n: I.num(state.list.length) });
       $("btn-prev").disabled = $("btn-next").disabled = !state.list.length;
-      $("btn-read-ar").onclick = function () { switchLang(I.reg.source); };
+      $("btn-read-ar").onclick = function () { switchLang(I.reg.source, { via: "read_ar" }); };
       if ($("btn-browse")) $("btn-browse").onclick = function () { go(1); };
       setHash(a.id);
       return;
@@ -370,8 +374,16 @@
     $("btn-next-back").onclick = function () { go(1); };
     $("btn-save").onclick = function () { toggleSave(h.id); };
     if ($("btn-ar")) $("btn-ar").onclick = function () { toggleAr(); };
-    readTimer = setTimeout(function () { markRead(h.id); }, 2500);
-    $("more").addEventListener("toggle", function () { requestAnimationFrame(syncFaces); });
+    var src = navSource;
+    readTimer = setTimeout(function () {
+      markRead(h.id);
+      // «ظهور فعلي»: بقيت البطاقة معروضة ثانيتين ونصفًا والصفحة ظاهرة. مرة لكل حديث في الزيارة
+      if (document.visibilityState === "visible") QA.once("view:" + h.id, "hadith_view", hp(h, { source: src }));
+    }, 2500);
+    $("more").addEventListener("toggle", function () {
+      requestAnimationFrame(syncFaces);
+      if ($("more").open) QA.once("more:" + h.id, "hadith_more_open", hp(h));
+    });
     $("btn-share").onclick = function () { share(h); };
     setHash(h.id);
   }
@@ -410,7 +422,10 @@
 
   function flip(toBack) {
     state.flipped = toBack;
-    if (toBack) { var cur = state.list[state.index]; if (cur) markRead(cur.id); }
+    if (toBack) {
+      var cur = state.list[state.index];
+      if (cur) { markRead(cur.id); QA.once("meaning:" + cur.id, "hadith_meaning_open", hp(cur)); watchReflect(cur); }
+    }
     syncFaces();
     var target = toBack ? $("back-title") : $("btn-flip");
     if (target) setTimeout(function () { target.focus({ preventScroll: true }); }, reduceMotion ? 0 : 300);
@@ -418,6 +433,22 @@
       var top = $("card").getBoundingClientRect().top;
       if (top < 0) $("card").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
     }
+  }
+
+  // الوقفة الإيمانية «اطُّلع عليها» حين تظهر على الشاشة ثانية كاملة بعد قلب البطاقة، لا بمجرد وجودها في الصفحة
+  var reflectObs = null;
+  function watchReflect(h) {
+    var el = document.querySelector("#face-back .reflect");
+    if (!el || !("IntersectionObserver" in window)) return;
+    if (reflectObs) reflectObs.disconnect();
+    var timer = null;
+    reflectObs = new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting) timer = setTimeout(function () {
+        if (state.flipped && document.contains(el)) QA.once("reflect:" + h.id, "reflection_view", hp(h));
+      }, 1000);
+      else clearTimeout(timer);
+    }, { threshold: 0.6 });
+    reflectObs.observe(el);
   }
 
   function go(step) {
@@ -434,6 +465,9 @@
     }
     if (state.list.length < 2) return;
     var dir = step > 0 ? "next" : "prev";
+    var from = state.list[state.index];
+    if (from && step > 0) QA.once("next:" + from.id, "hadith_next", hp(from));
+    navSource = dir;
     var apply = function () {
       state.index = (state.index + step + state.list.length) % state.list.length;
       render(dir);
@@ -537,22 +571,29 @@
     }
     $("saved-count").textContent = I.num(state.saved.length);
     toast(t(on ? "toast.saved" : "toast.unsaved"));
+    var sh = byId(state.base, id);
+    if (sh) QA.track(on ? "hadith_favorite" : "hadith_unfavorite", { hadith_id: id, lang: I.lang, category_id: sh.categories[0] });
   }
 
   // رابط الحديث يحمل معرّفه الثابت ولغة المرسل، والمستقبِل يستطيع تغيير اللغة بعد فتحه
-  function linkFor(h) {
-    var code = I.lang, site = state.site && state.site.site_url;
+  // ch: قناة المشاركة (w واتساب، c نسخ، i صورة، n مشاركة الجهاز). رمز حرف واحد لا يعرّف المرسل، يُقرأ في analytics.js ثم يُحذف من الرابط
+  function linkFor(h, ch) {
+    var code = I.lang, site = state.site && state.site.site_url, tag = ch ? "s=" + ch : "";
     if (site) {
       site = site.replace(/\/?$/, "/");
-      if (I.reg.pathUrls) return site + code + "/#" + h.id;
-      return site + (code === I.reg.source ? "" : "?lang=" + code) + "#" + h.id;
+      if (I.reg.pathUrls) return site + code + "/" + (tag ? "?" + tag : "") + "#" + h.id;
+      var qs = [code === I.reg.source ? "" : "lang=" + code, tag].filter(Boolean).join("&");
+      return site + (qs ? "?" + qs : "") + "#" + h.id;
     }
     try {
       var u = new URL(location.href);
       u.hash = h.id;
+      ["s", "analytics"].forEach(function (k) { u.searchParams.delete(k); });
+      Array.from(u.searchParams.keys()).filter(function (k) { return /^utm_/.test(k); }).forEach(function (k) { u.searchParams.delete(k); });
       if (!document.documentElement.hasAttribute("data-lang-page")) {
         if (code === I.reg.source) u.searchParams.delete("lang"); else u.searchParams.set("lang", code);
       }
+      if (ch) u.searchParams.set("s", ch);
       return u.href;
     } catch (e) { return location.href.split("#")[0] + "#" + h.id; }
   }
@@ -560,12 +601,13 @@
   /* ---------- صورة البطاقة للمشاركة ---------- */
   var shareBlob = null, shareFor = null;
   function share(h) {
-    var url = linkFor(h);
+    var url = linkFor(h, "i");
     var box = $("share-box");
     if (!box.hidden && shareFor === h.id) { box.hidden = true; return; }
     shareFor = h.id; shareBlob = null;
-    $("share-url").value = url;
-    $("share-wa").href = "https://wa.me/?text=" + encodeURIComponent(h.title + "\n" + url);
+    QA.track("hadith_share_click", hp(h));
+    $("share-url").value = linkFor(h, "c");
+    $("share-wa").href = "https://wa.me/?text=" + encodeURIComponent(h.title + "\n" + linkFor(h, "w"));
     $("share-img").removeAttribute("src");
     $("share-image").disabled = true;
     box.hidden = false;
@@ -585,9 +627,11 @@
     var file;
     try { file = new File([shareBlob], name, { type: "image/png" }); } catch (e) { file = null; }
     if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: h.title, text: h.title + "\n" + linkFor(h) }).catch(function () {});
+      QA.track("hadith_share_image", hp(h, { channel: "native" }));
+      navigator.share({ files: [file], title: h.title, text: h.title + "\n" + linkFor(h, "n") }).catch(function () {});
       return;
     }
+    QA.track("hadith_share_image", hp(h, { channel: "download" }));
     try {
       var a = document.createElement("a");
       a.href = URL.createObjectURL(shareBlob); a.download = name;
@@ -715,6 +759,8 @@
 
   /* ---------- اكتشف أجرًا ---------- */
   function discover() {
+    navSource = "random";
+    QA.track("discover_click", { lang: I.lang });
     var cur = state.pending ? null : state.list[state.index];
     if (state.filter) setFilter(null, true);
     var notCur = state.all.filter(function (h) { return !cur || h.id !== cur.id; });
@@ -911,7 +957,7 @@
   function loadLang(code) {
     var jobs = [I.loadDict("ui", code)];
     if (code !== I.reg.source && !content[code]) {
-      jobs.push(I.fetchJSON("data/content/" + code + ".json").then(function (c) { content[code] = c; }, function () { content[code] = { site: {}, hadiths: {} }; }));
+      jobs.push(I.fetchJSON("data/content/" + code + ".json").then(function (c) { content[code] = c; }, function () { content[code] = { site: {}, hadiths: {} }; QA.fail("translation_load_failed", { lang: code, part: "content" }); }));
     }
     if (code === I.reg.source && !TK) {
       I.fetchJSON(TASHKEEL_URL).then(function (m) { TK = m; vowelTree(document.body); }, function () { /* يبقى النص كما هو */ });
@@ -923,7 +969,7 @@
   var switching = 0;
   function switchLang(code, opts) {
     opts = opts || {};
-    var ticket = ++switching;
+    var ticket = ++switching, fromLang = I.lang;
     var curId = state.pending || (state.list[state.index] && state.list[state.index].id);
     var wasFlipped = state.flipped, view = state.view, filter = state.filter;
     document.documentElement.classList.add("lang-busy");
@@ -946,7 +992,8 @@
       if (view === "saved") renderSaved();
       if (view === "search") renderSearch();
       if (!opts.silent) toast(t("toast.lang"));
-    }).catch(function () { toast(t("error.load")); })
+      if (fromLang !== code) QA.track("language_change", { from: fromLang, to: code, via: opts.via || "picker" });
+    }).catch(function () { toast(t("error.load")); QA.fail("language_switch_failed", { lang: code }); })
       .then(function () { document.documentElement.classList.remove("lang-busy", "i18n-wait"); });
   }
 
@@ -969,8 +1016,8 @@
         '<button type="button" class="link-btn" id="offer-no">' + esc(I.tIn(st, "tr.dismiss")) + "</button>";
       box.hidden = false;
       function seen() { try { localStorage.setItem("qararit.lang.offered", "1"); } catch (e) {} }
-      $("offer-yes").onclick = function () { seen(); switchLang(st); };
-      $("offer-no").onclick = function () { seen(); box.hidden = true; };
+      $("offer-yes").onclick = function () { seen(); QA.track("language_offer", { lang: st, accepted: true }); switchLang(st, { via: "offer" }); };
+      $("offer-no").onclick = function () { seen(); box.hidden = true; QA.track("language_offer", { lang: st, accepted: false }); };
     }).catch(function () {});
   }
 
@@ -995,6 +1042,7 @@
     var i = state.list.findIndex(function (h) { return h.id === id; });
     state.pending = i === -1 && baseIndex(id) !== -1 ? id : null;
     state.index = i === -1 ? 0 : i;
+    navSource = id && (i !== -1 || state.pending) ? "link" : "home";
     render();
     document.documentElement.classList.remove("i18n-wait");
     offerStored();
@@ -1004,7 +1052,8 @@
     var code = I.initial();
     applyScale(lsGet(LS_SCALE, 1));
     state.tashkeel = lsGet(LS_TASHKEEL, true) !== false;
-    $("btn-tashkeel").onclick = function () { applyTashkeel(!state.tashkeel, true); };
+    $("btn-tashkeel").onclick = function () { applyTashkeel(!state.tashkeel, true); QA.track("tashkeel_toggle", { on: state.tashkeel }); };
+    $("btn-family").addEventListener("click", function () { QA.track("family_open", { lang: I.lang }); });
     $("btn-font-down").onclick = function () { applyScale(state.scaleIndex - 1); };
     $("btn-font-up").onclick = function () { applyScale(state.scaleIndex + 1); };
     $("btn-next").onclick = function () { go(1); };
@@ -1014,12 +1063,13 @@
     $("btn-random").onclick = discover;
     $("btn-unread").onclick = function () {
       if (!unreadCount()) { toast(t("toast.all_read")); return; }
+      navSource = "unread";
       state.pending = null; setFilter(UNREAD, true); show("deck"); render();
     };
     $("share-image").onclick = shareImage;
     $("share-close").onclick = function () { $("share-box").hidden = true; };
     $("btn-search").onclick = function () { show("search"); };
-    $("brand").onclick = function () { state.pending = null; setFilter(null, true); state.index = 0; show("deck"); render(); };
+    $("brand").onclick = function () { navSource = "home"; state.pending = null; setFilter(null, true); state.index = 0; show("deck"); render(); };
     $("filter-clear").onclick = function () {
       var cur = state.list[state.index];
       setFilter(null, true);
@@ -1033,22 +1083,33 @@
         else { inp.focus(); inp.select(); toast(t("toast.copy_manual")); }
       });
     };
-    $("search-input").addEventListener("input", renderSearch);
+    var searchTimer;
+    $("search-input").addEventListener("input", function () {
+      renderSearch();
+      // البحث يُعدّ بعد توقف الكتابة. لا تُرسل عبارة البحث نفسها أبدًا، بل فئة عدد النتائج فقط
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () {
+        var n = $("search-list").querySelectorAll("button[data-id]").length, q = $("search-input").value.trim();
+        if (q.length >= 2) QA.track("search_performed", { lang: I.lang, results: n === 0 ? "none" : n <= 5 ? "1-5" : "6+" });
+      }, 1500);
+    });
     Array.prototype.forEach.call(document.querySelectorAll("[data-back]"), function (b) {
       b.onclick = function () { show("deck"); };
     });
     $("topic-list").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-cat]"); if (!b) return;
+      navSource = "topic";
+      QA.track("topic_open", { category_id: b.getAttribute("data-cat"), lang: I.lang });
       state.pending = null; setFilter(b.getAttribute("data-cat"), true); show("deck"); render();
     });
     ["saved-list", "search-list"].forEach(function (id) {
       $(id).addEventListener("click", function (e) {
-        var b = e.target.closest("button[data-id]"); if (b) openHadith(b.getAttribute("data-id"));
+        var b = e.target.closest("button[data-id]"); if (b) { navSource = id === "saved-list" ? "saved" : "search"; openHadith(b.getAttribute("data-id")); }
       });
     });
     window.addEventListener("hashchange", function () {
       var id = location.hash.slice(1), cur = state.pending || (state.list[state.index] && state.list[state.index].id);
-      if (id && id !== cur && baseIndex(id) !== -1) openHadith(id);
+      if (id && id !== cur && baseIndex(id) !== -1) { navSource = "link"; openHadith(id); }
     });
     window.addEventListener("resize", function () { requestAnimationFrame(syncFaces); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { requestAnimationFrame(syncFaces); });
@@ -1077,6 +1138,7 @@
       boot(r[2]);
       vowelTree(document.body);
     }).catch(function () {
+      QA.fail("data_load_failed", { part: "hadiths" });
       document.documentElement.classList.remove("i18n-wait");
       $("deck").innerHTML = '<p class="error">' + esc(t("error.load") || "تعذّر تحميل الأحاديث. إن كنت فتحت الملف مباشرة من جهازك، فشغّله عبر خادم محلي أو انشره على الإنترنت كما في دليل النشر.") + "</p>";
     });

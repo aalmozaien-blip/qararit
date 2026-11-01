@@ -12,6 +12,8 @@
   var loadContent = null, pilot = false, bank = null;
 
   function E(code) { return new Error(code); }
+  // القياس المجمّع (analytics.js): نوع التحدي ومستواه ونسب عامة فقط. لا يُرسل اسم ولا معرّف مجلس أو مشارك ولا الخيار المختار
+  function A(name, props) { if (window.QA) window.QA.track(name, props); }
   function now() { return Date.now(); }
   function uid() {
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -77,6 +79,7 @@
         participants: [{ id: pid, name: cleanName(a.p_display_name, 30), is_admin: true, color: 0, has_pin: false, created_at: now() }],
         challenges: [], answers: [] };
       save(db);
+      A("family_council_created", { mode: "local" });
       return { family_id: fid, participant_id: pid };
     },
     my_families: function () {
@@ -202,6 +205,7 @@
           byH[h].sort().reverse().slice(0, per).forEach(function (qid) { c.questions.push({ question_id: qid, hadith_index: i, position: pos++, revealed: false }); });
         });
         f.challenges.push(c); bump(f); save(db);
+        A("family_challenge_created", { challenge_type: c.kind, question_level: c.level, mode: "local" });
         return c.id;
       });
     },
@@ -246,6 +250,7 @@
         var prevOk = prev.some(function (x) { return x.is_correct; });
         if (prev.length && (!c.allow_retry || prevOk || prev.length >= 3)) return { status: "duplicate" };
         var ok = a.p_choice === q.correct;
+        var first = !f.answers.some(function (x) { return x.challenge_id === c.id; });
         f.answers.push({ challenge_id: c.id, participant_id: a.p_participant, question_id: a.p_question, attempt: prev.length + 1, choice: a.p_choice, is_correct: ok, created_at: now() });
         // تنتهي مرحلة الإجابة حين يجيب كل المشاركين
         var finished = {};
@@ -255,6 +260,9 @@
         var revealed = f.participants.every(function (p) { return finished[p.id]; });
         if (revealed) cq.revealed = true;
         bump(f); save(db);
+        if (first) A("family_challenge_started", { challenge_type: c.kind, question_level: c.level, mode: "local" });
+        A("family_question_answered", { question_id: q.id, hadith_id: q.hadith_id, question_level: c.level, correct: ok, attempt: prev.length + 1,
+          answer_result: q.id + (ok ? "-ok" : "-no"), level_result: c.level + (ok ? "-ok" : "-no") });
         return { status: "recorded", revealed: revealed, correct: c.allow_retry || revealed ? ok : null, can_retry: c.allow_retry && !ok && prev.length + 1 < 3 };
       });
     },
@@ -276,8 +284,22 @@
       var db = load(), f = fam(db, a.p_family);
       actor(db, f, a.p_actor, true, false);
       var c = chal(f, a.p_challenge);
-      if (c.status === "active") { c.status = "done"; c.finished_at = now(); c.questions.forEach(function (q) { q.revealed = true; }); }
-      bump(f); save(db); return null;
+      var wasActive = c.status === "active";
+      if (wasActive) { c.status = "done"; c.finished_at = now(); c.questions.forEach(function (q) { q.revealed = true; }); }
+      bump(f); save(db);
+      if (wasActive) {
+        // نسب على مستوى المجلس كله: كم سؤالًا أُجيب من المطلوب، وكم منها صحيح (أي محاولة صحيحة تُحسب)
+        var np = f.participants.length, nq = c.questions.length, answered = {}, right = {};
+        f.answers.forEach(function (x) {
+          if (x.challenge_id !== c.id) return;
+          var k = x.participant_id + "|" + x.question_id;
+          answered[k] = true; if (x.is_correct) right[k] = true;
+        });
+        var na = Object.keys(answered).length;
+        A("family_challenge_completed", { challenge_type: c.kind, question_level: c.level, mode: "local",
+          participants: np, answered_pct: np * nq ? Math.round(100 * na / (np * nq)) : 0, correct_pct: na ? Math.round(100 * Object.keys(right).length / na) : 0 });
+      }
+      return null;
     },
     challenge_board: function (a) {
       var db = load(), f = fam(db, a.p_family), c = chal(f, a.p_challenge), done = c.status === "done";

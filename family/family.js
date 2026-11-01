@@ -322,6 +322,7 @@
         if (rev !== S.rev) return refreshView();
       }).catch(function (e) {
         if (e.message === "not_member") { S.famId = null; toast(T("لم يعد هذا الجهاز عضوًا في المجلس.")); go("#/"); }
+        else if (window.QA) QA.fail("family_sync_failed", { mode: isLocal(S.famId) ? "local" : "shared" });
       }).then(function () { polling = false; }, function () { polling = false; });
     }, POLL_MS);
   }

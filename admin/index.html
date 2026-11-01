@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة الأثر والانتشار</title>
+<!-- لوحة الإدارة: لا فهرسة، ولا تُرسل عنوانها لأي موقع. البيانات لا تظهر إلا بمفتاح الواجهة البرمجية لأداة التحليلات -->
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.6.0/dist/jsvectormap.min.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<header class="bar">
+  <div>
+    <h1>لوحة الأثر والانتشار العالمي</h1>
+    <p class="sub">لقد فرّطنا في قراريط كثيرة · <span id="period-label">—</span> · <span id="tz-label"></span></p>
+  </div>
+  <div class="bar-tools" id="bar-tools" hidden>
+    <label>الفترة
+      <select id="f-period">
+        <option value="1">آخر 24 ساعة</option>
+        <option value="7">آخر 7 أيام</option>
+        <option value="30" selected>آخر 30 يومًا</option>
+        <option value="90">آخر 90 يومًا</option>
+        <option value="custom">فترة مخصصة</option>
+      </select>
+    </label>
+    <span id="custom-range" hidden>
+      <input type="date" id="f-from" aria-label="من"> <input type="date" id="f-to" aria-label="إلى">
+    </span>
+    <label>الدولة <select id="f-country"><option value="">كل الدول</option></select></label>
+    <label>الجهاز
+      <select id="f-device"><option value="">كل الأجهزة</option><option value="mobile">جوال</option><option value="desktop">كمبيوتر</option><option value="tablet">لوحي</option></select>
+    </label>
+    <label>اللغة <select id="f-lang"><option value="">كل اللغات</option></select></label>
+    <button class="btn" id="btn-refresh" type="button">تحديث</button>
+    <button class="btn quiet" id="btn-logout" type="button">خروج</button>
+  </div>
+</header>
+
+<section class="connect" id="connect">
+  <h2>الدخول إلى اللوحة</h2>
+  <p>اللوحة تقرأ الأرقام مباشرة من حساب أداة التحليلات (Umami). لا تُحفظ البيانات في الموقع، ولا يراها أحد دون المفتاح.</p>
+  <form id="connect-form">
+    <label>رقم الموقع في Umami (Website ID)<input id="c-site" required autocomplete="off" dir="ltr" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label>
+    <label>مفتاح الواجهة البرمجية (API key)<input id="c-key" type="password" required autocomplete="off" dir="ltr"></label>
+    <label>عنوان الواجهة البرمجية<input id="c-api" dir="ltr" value="https://api.umami.is/v1"></label>
+    <label class="check"><input type="checkbox" id="c-remember"> تذكّر المفتاح على هذا الجهاز (لا تفعّله على جهاز مشترك)</label>
+    <button class="btn primary" type="submit">دخول</button>
+    <p class="error" id="connect-error" hidden></p>
+  </form>
+  <p class="muted">المفتاح يُنشأ من حساب Umami: Settings ← API keys. ويُحفظ في هذا المتصفح فقط، ويُرسل إلى Umami وحدها.</p>
+</section>
+
+<nav class="tabs" id="tabs" hidden>
+  <button type="button" data-tab="overview" aria-selected="true">نظرة عامة</button>
+  <button type="button" data-tab="geo">الانتشار العالمي</button>
+  <button type="button" data-tab="langs">الانتشار حسب اللغة</button>
+  <button type="button" data-tab="hadiths">أداء الأحاديث</button>
+  <button type="button" data-tab="journey">رحلة الزائر</button>
+  <button type="button" data-tab="family">الأثر الأسري</button>
+  <button type="button" data-tab="sources">قنوات الوصول</button>
+  <button type="button" data-tab="quality">جودة التشغيل</button>
+  <button type="button" data-tab="reports">التقارير والقرارات</button>
+  <button type="button" data-tab="defs">التعريفات</button>
+</nav>
+
+<main id="main" hidden>
+  <div class="notice" id="notice" hidden></div>
+  <section class="tab" id="tab-overview"></section>
+  <section class="tab" id="tab-geo" hidden>
+    <div class="panel"><h2>خريطة الانتشار حسب الدولة</h2>
+      <p class="muted">الموقع تقريبي تستنتجه أداة التحليلات من عنوان الشبكة، ولا يُطلب إذن تحديد الموقع. الشبكات الخاصة (VPN) قد تُظهر دولة غير دولة الزائر.</p>
+      <div id="map" class="map"></div>
+    </div>
+    <div class="grid2">
+      <div class="panel" id="geo-table"></div>
+      <div class="panel" id="geo-detail"><h2>تفاصيل الدولة</h2><p class="muted">اختر دولة من الخريطة أو الجدول.</p></div>
+    </div>
+    <div class="panel" id="geo-growth"></div>
+  </section>
+  <section class="tab" id="tab-langs" hidden></section>
+  <section class="tab" id="tab-hadiths" hidden></section>
+  <section class="tab" id="tab-journey" hidden></section>
+  <section class="tab" id="tab-family" hidden></section>
+  <section class="tab" id="tab-sources" hidden></section>
+  <section class="tab" id="tab-quality" hidden></section>
+  <section class="tab" id="tab-reports" hidden></section>
+  <section class="tab" id="tab-defs" hidden></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.6.0/dist/jsvectormap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.6.0/dist/maps/world.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

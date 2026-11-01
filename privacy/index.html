@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الخصوصية والقياس | لقد فرّطنا في قراريط كثيرة</title>
+<meta name="theme-color" content="#1d4f40">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Nastaliq+Urdu:wght@400;600&display=swap">
+<style>
+  :root { --bg:#f7f3ea; --card:#fffdf8; --ink:#1f2a24; --muted:#5d6a62; --accent:#1d4f40; --line:#e3dccb; --warn:#8a5a00; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#121815; --card:#1a221e; --ink:#e9efe9; --muted:#a6b3ab; --accent:#7fc4a8; --line:#2b3631; --warn:#e3b65a; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.85 "IBM Plex Sans Arabic","IBM Plex Sans",system-ui,sans-serif; }
+  html[lang="ur"] body { font-family:"Noto Nastaliq Urdu","IBM Plex Sans Arabic",serif; line-height:2.3; }
+  main { max-width:760px; margin:0 auto; padding:24px 16px 64px; }
+  header { display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  header a { color:var(--accent); font-weight:600; text-decoration:none; }
+  .langs { display:flex; flex-wrap:wrap; gap:6px; }
+  .langs button { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:999px; padding:4px 12px; font:inherit; font-size:.9rem; cursor:pointer; }
+  .langs button[aria-pressed="true"] { background:var(--accent); color:var(--card); border-color:var(--accent); }
+  h1 { font-family:Amiri,serif; font-size:2rem; line-height:1.4; margin:.2em 0 .4em; }
+  html[lang="en"] h1, html[lang="fr"] h1, html[lang="id"] h1 { font-family:"IBM Plex Sans",system-ui,sans-serif; font-size:1.7rem; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin:14px 0; }
+  h2 { font-size:1.15rem; margin:0 0 6px; color:var(--accent); }
+  ul { margin:0; padding-inline-start:1.2em; }
+  .draft { color:var(--warn); font-size:.9rem; }
+  .status { font-weight:600; }
+  .btn { display:inline-block; margin-top:8px; border:1px solid var(--accent); background:transparent; color:var(--accent); border-radius:10px; padding:8px 16px; font:inherit; cursor:pointer; }
+  .btn.primary { background:var(--accent); color:var(--card); }
+  .muted { color:var(--muted); font-size:.92rem; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <a id="home" href="../">لقد فرّطنا في قراريط كثيرة</a>
+    <div class="langs" id="langs"></div>
+  </header>
+  <h1 id="title"></h1>
+  <p class="draft" id="draft" hidden></p>
+  <div id="body"></div>
+  <section>
+    <h2 id="ctl-h"></h2>
+    <p class="status" id="ctl-status"></p>
+    <button class="btn primary" id="ctl-btn" type="button"></button>
+  </section>
+  <p class="muted" id="updated"></p>
+</main>
+<script src="../i18n/locales.js"></script>
+<script src="../analytics.js"></script>
+<script>
+(function () {
+  "use strict";
+  // نص السياسة بخمس لغات. العربية هي المرجع؛ الترجمات أولية حتى يراجعها الفريق.
+  var TX = {
+    ar: {
+      title: "الخصوصية وقياس الاستخدام",
+      sections: [
+        ["ما الذي نقيسه ولماذا؟", ["نقيس استخدام الموقع بصورة مجمّعة لنعرف أي الأحاديث يتفاعل معها الناس، وأي اللغات تحتاج دعمًا أكبر، وأين تتعطل تجربة الاستخدام، حتى نحسّن وصول الخير إلى الناس. الغاية تحسين المشروع لا مراقبة الأشخاص.", "نستخدم أداة تحليلات تحترم الخصوصية (Umami) بلا ملفات تعريف ارتباط (كوكيز) وبلا معرّف دائم للزائر."]],
+        ["ما الذي يُرسل؟", ["الصفحة التي فُتحت، ومصدر الزيارة العام (مثل محرك بحث أو رابط حملة)، ونوع الجهاز والمتصفح ولغته.", "الدولة والمنطقة والمدينة التقريبية التي تستنتجها أداة التحليلات من عنوان الشبكة، ثم لا تحفظ العنوان نفسه. قد يكون الموقع غير دقيق إن استُعملت شبكة خاصة (VPN).", "أحداث عامة مثل: ظهور بطاقة حديث، وفتح معناه، وحفظه في المفضلة، والضغط على المشاركة، وتغيير اللغة، مع رمز الحديث ولغة الواجهة فقط.", "في تحدي الأسرة: نوع التحدي ومستوى الأسئلة، ونسب عامة للإكمال والإجابات الصحيحة على مستوى المجلس كله، وهل كانت إجابة سؤال معيّن صحيحة دون أي اسم أو معرّف."]],
+        ["ما الذي لا يُرسل أبدًا؟", ["أسماء أفراد الأسرة أو المجالس، ولا معرّفاتهم، ولا رموز الدعوة، ولا الخيار الذي اختاره أحدهم.", "عبارات البحث التي تكتبها، ولا أي نص تكتبه في الموقع.", "موقعك الدقيق: لا نطلب إذن تحديد الموقع (GPS) أبدًا.", "لا نستعمل البيانات للإعلانات، ولا نبني ملفات شخصية، ولا نستنتج تديّن أحد أو معتقده، ولا نستعمل بصمة الجهاز."]],
+        ["ما يبقى على جهازك فقط", ["المفضلة وما قرأته وحجم الخط واللغة ومجالس الأسرة على هذا الجهاز تُحفظ في متصفحك وحده، ولا تصلنا. وتُمحى إن مسحت بيانات المتصفح.", "نحفظ علامة صغيرة على جهازك تعني «زار الموقع من قبل»، لنعرف نسبة الزوار العائدين تقريبيًا. لا تحمل أي معرّف ولا تُرسل وحدها."]],
+        ["مدة الاحتفاظ ومكانه", ["تحتفظ أداة التحليلات بالبيانات المجمّعة ستة أشهر في خطتها المجانية، ثم تُحذف تلقائيًا. ونختار تخزينها في الاتحاد الأوروبي حيث يتاح ذلك.", "التقارير التي نستخرجها منها أرقام مجمّعة لا تعرّف أحدًا."]],
+        ["الأطفال", ["قد يستخدم الأطفال تحدي الأسرة مع أهلهم. لا نجمع منهم أي بيانات شخصية، وكل نتائجهم تبقى داخل المجلس على الجهاز. وننصح أن يكون ولي الأمر حاضرًا معهم."]],
+        ["حقوقك", ["يمكنك إيقاف القياس على جهازك في أي وقت من الزر أدناه، ويعمل الموقع كاملًا دونه.", "إذا فعّلت في متصفحك خيار «عدم التتبع» أو «التحكم العام في الخصوصية» فلن نقيس زيارتك أصلًا.", "لأي سؤال عن الخصوصية أو طلب يخص بياناتك، تواصل مع فريق المشروع."]]
+      ],
+      ctl: "إيقاف القياس على هذا الجهاز", on: "القياس مفعّل على هذا الجهاز (بيانات مجمّعة بلا هوية).", off: "القياس متوقف على هذا الجهاز.",
+      dnt: "متصفحك يطلب عدم التتبع، فلا نقيس زيارتك.", na: "القياس لم يُفعَّل في الموقع بعد، فلا يُرسل شيء حاليًا.",
+      stop: "أوقف القياس", resume: "أعد تفعيل القياس", updated: "آخر تحديث: نوفمبر 2026", home: "لقد فرّطنا في قراريط كثيرة", draft: ""
+    },
+    en: {
+      title: "Privacy and usage measurement",
+      sections: [
+        ["What we measure and why", ["We measure how the site is used, in aggregate, to learn which hadiths people engage with, which languages need more support, and where the experience breaks, so we can help the good reach more people. The aim is to improve the project, not to watch people.", "We use a privacy-friendly analytics tool (Umami) with no cookies and no persistent visitor identifier."]],
+        ["What is sent", ["The page opened, the general source of the visit (such as a search engine or a campaign link), and the device type, browser and browser language.", "The approximate country, region and city that the analytics tool derives from the network address; the address itself is not stored. Location may be wrong if you use a VPN.", "General events such as a hadith card being shown, its meaning opened, saved to favourites, the share button pressed, or the language changed, with only the hadith code and interface language.", "In the Family Challenge: the challenge type and question level, overall completion and correct-answer rates for the whole council, and whether an answer to a given question was correct, with no name or identifier."]],
+        ["What is never sent", ["Names of family members or councils, their identifiers, invitation codes, or the option anyone chose.", "Your search terms or any text you type on the site.", "Your precise location: we never ask for GPS permission.", "We do not use data for advertising, build personal profiles, infer anyone’s religiosity or beliefs, or use device fingerprinting."]],
+        ["What stays on your device only", ["Favourites, reading progress, font size, language and Family councils on this device are stored in your browser only and never reach us. They are erased if you clear your browser data.", "We keep a small marker meaning “has visited before” to estimate the share of returning visitors. It carries no identifier and is not sent on its own."]],
+        ["Retention and location", ["The analytics tool keeps aggregated data for six months on its free plan, then deletes it automatically. We choose EU storage where available.", "Reports we produce from it contain aggregated figures that identify no one."]],
+        ["Children", ["Children may use the Family Challenge with their families. We collect no personal data from them, and all their results stay inside the council on the device. We recommend a parent be present."]],
+        ["Your rights", ["You can stop measurement on your device at any time with the button below; the site works fully without it.", "If your browser sends “Do Not Track” or “Global Privacy Control”, we do not measure your visit at all.", "For any privacy question or request about your data, contact the project team."]]
+      ],
+      ctl: "Stop measurement on this device", on: "Measurement is on for this device (aggregated, anonymous data).", off: "Measurement is off on this device.",
+      dnt: "Your browser asks not to be tracked, so your visit is not measured.", na: "Measurement is not enabled on the site yet, so nothing is sent.",
+      stop: "Stop measurement", resume: "Turn measurement back on", updated: "Last updated: November 2026", home: "We Have Let So Many Qirats Slip Away",
+      draft: "Initial translation pending review. The Arabic text is the reference."
+    },
+    ur: {
+      title: "رازداری اور استعمال کی پیمائش",
+      sections: [
+        ["ہم کیا ناپتے ہیں اور کیوں؟", ["ہم ویب سائٹ کے استعمال کو مجموعی طور پر ناپتے ہیں تاکہ معلوم ہو کہ لوگ کن احادیث سے زیادہ جڑتے ہیں، کن زبانوں کو مزید مدد کی ضرورت ہے، اور تجربہ کہاں رکتا ہے۔ مقصد منصوبے کو بہتر بنانا ہے، لوگوں کی نگرانی نہیں۔", "ہم رازداری کا احترام کرنے والا تجزیاتی آلہ (Umami) استعمال کرتے ہیں، بغیر کوکیز اور بغیر کسی مستقل شناخت کے۔"]],
+        ["کیا بھیجا جاتا ہے؟", ["کھولا گیا صفحہ، وزٹ کا عمومی ذریعہ، آلے اور براؤزر کی قسم اور اس کی زبان۔", "تقریبی ملک، علاقہ اور شہر جو آلہ نیٹ ورک ایڈریس سے اخذ کرتا ہے؛ ایڈریس خود محفوظ نہیں ہوتا۔ VPN کی صورت میں مقام غلط ہو سکتا ہے۔", "عمومی واقعات جیسے حدیث کارڈ کا ظاہر ہونا، معنی کھولنا، پسندیدہ میں محفوظ کرنا، شیئر کا بٹن، زبان کی تبدیلی، صرف حدیث کے کوڈ اور زبان کے ساتھ۔", "خاندانی چیلنج میں: چیلنج کی قسم، سوالات کی سطح، پوری مجلس کی تکمیل اور درست جوابات کی مجموعی شرح، بغیر کسی نام یا شناخت کے۔"]],
+        ["کیا کبھی نہیں بھیجا جاتا؟", ["خاندان کے افراد یا مجالس کے نام، ان کی شناخت، دعوتی کوڈ، یا کسی کا منتخب کردہ جواب۔", "آپ کی تلاش کے الفاظ یا کوئی بھی تحریر۔", "آپ کا درست مقام: ہم کبھی GPS کی اجازت نہیں مانگتے۔", "اشتہارات، ذاتی پروفائل، کسی کی دینداری یا عقیدے کا اندازہ، یا ڈیوائس فنگر پرنٹنگ نہیں۔"]],
+        ["جو صرف آپ کے آلے پر رہتا ہے", ["پسندیدہ، مطالعہ، فونٹ، زبان اور خاندانی مجالس صرف آپ کے براؤزر میں رہتے ہیں اور ہم تک نہیں پہنچتے۔", "ایک چھوٹا نشان کہ «پہلے آ چکے ہیں» تاکہ واپس آنے والوں کی شرح کا اندازہ ہو؛ اس میں کوئی شناخت نہیں۔"]],
+        ["مدتِ حفاظت اور مقام", ["مفت منصوبے میں مجموعی ڈیٹا چھ ماہ رکھا جاتا ہے، پھر خود بخود حذف ہو جاتا ہے۔ جہاں ممکن ہو یورپی یونین میں ذخیرہ منتخب کیا جاتا ہے۔"]],
+        ["بچے", ["بچے اپنے گھر والوں کے ساتھ خاندانی چیلنج استعمال کر سکتے ہیں۔ ان سے کوئی ذاتی معلومات جمع نہیں کی جاتیں، اور ان کے نتائج آلے پر مجلس کے اندر رہتے ہیں۔"]],
+        ["آپ کے حقوق", ["نیچے دیے گئے بٹن سے آپ کسی بھی وقت اس آلے پر پیمائش بند کر سکتے ہیں؛ ویب سائٹ اس کے بغیر پوری طرح کام کرتی ہے۔", "اگر آپ کا براؤزر «ٹریک نہ کریں» بھیجتا ہے تو آپ کا وزٹ ناپا ہی نہیں جاتا۔", "رازداری سے متعلق کسی سوال کے لیے منصوبے کی ٹیم سے رابطہ کریں۔"]]
+      ],
+      ctl: "اس آلے پر پیمائش بند کریں", on: "اس آلے پر پیمائش فعال ہے (مجموعی، گمنام ڈیٹا)۔", off: "اس آلے پر پیمائش بند ہے۔",
+      dnt: "آپ کا براؤزر ٹریک نہ کرنے کی درخواست کرتا ہے، اس لیے وزٹ ناپا نہیں جاتا۔", na: "ویب سائٹ پر پیمائش ابھی فعال نہیں، اس لیے کچھ نہیں بھیجا جاتا۔",
+      stop: "پیمائش بند کریں", resume: "پیمائش دوبارہ فعال کریں", updated: "آخری تازہ کاری: نومبر 2026", home: "لقد فرّطنا في قراريط كثيرة",
+      draft: "ابتدائی ترجمہ، نظرثانی باقی ہے۔ عربی متن ہی معیار ہے۔"
+    },
+    id: {
+      title: "Privasi dan pengukuran penggunaan",
+      sections: [
+        ["Apa yang kami ukur dan mengapa", ["Kami mengukur penggunaan situs secara agregat untuk mengetahui hadis mana yang paling diminati, bahasa mana yang perlu dukungan lebih, dan di mana pengalaman pengguna terhambat. Tujuannya memperbaiki proyek, bukan mengawasi orang.", "Kami memakai alat analitik yang menghormati privasi (Umami), tanpa cookie dan tanpa pengenal pengunjung yang permanen."]],
+        ["Apa yang dikirim", ["Halaman yang dibuka, sumber kunjungan secara umum, jenis perangkat, peramban, dan bahasanya.", "Perkiraan negara, wilayah, dan kota yang diturunkan alat analitik dari alamat jaringan; alamat itu sendiri tidak disimpan. Lokasi bisa keliru jika memakai VPN.", "Peristiwa umum seperti kartu hadis tampil, makna dibuka, disimpan ke favorit, tombol bagikan ditekan, atau bahasa diganti, hanya dengan kode hadis dan bahasa antarmuka.", "Pada Tantangan Keluarga: jenis tantangan, tingkat soal, serta persentase penyelesaian dan jawaban benar untuk seluruh majelis, tanpa nama atau pengenal."]],
+        ["Apa yang tidak pernah dikirim", ["Nama anggota keluarga atau majelis, pengenal mereka, kode undangan, atau pilihan jawaban seseorang.", "Kata pencarian Anda atau teks apa pun yang Anda ketik.", "Lokasi tepat Anda: kami tidak pernah meminta izin GPS.", "Kami tidak memakai data untuk iklan, tidak membuat profil pribadi, tidak menyimpulkan keberagamaan siapa pun, dan tidak memakai sidik jari perangkat."]],
+        ["Yang hanya tersimpan di perangkat Anda", ["Favorit, kemajuan membaca, ukuran huruf, bahasa, dan majelis keluarga hanya tersimpan di peramban Anda dan tidak sampai kepada kami.", "Kami menyimpan penanda kecil «pernah berkunjung» untuk memperkirakan persentase pengunjung kembali; penanda ini tanpa pengenal."]],
+        ["Masa simpan dan lokasi", ["Pada paket gratis, data agregat disimpan enam bulan lalu dihapus otomatis. Kami memilih penyimpanan di Uni Eropa bila tersedia."]],
+        ["Anak-anak", ["Anak-anak dapat memakai Tantangan Keluarga bersama keluarganya. Kami tidak mengumpulkan data pribadi mereka, dan hasilnya tetap di dalam majelis pada perangkat."]],
+        ["Hak Anda", ["Anda dapat menghentikan pengukuran di perangkat ini kapan saja dengan tombol di bawah; situs tetap berfungsi penuh.", "Jika peramban Anda mengirim «Do Not Track» atau «Global Privacy Control», kunjungan Anda tidak diukur sama sekali.", "Untuk pertanyaan privasi, hubungi tim proyek."]]
+      ],
+      ctl: "Hentikan pengukuran di perangkat ini", on: "Pengukuran aktif di perangkat ini (data agregat, anonim).", off: "Pengukuran nonaktif di perangkat ini.",
+      dnt: "Peramban Anda meminta untuk tidak dilacak, jadi kunjungan Anda tidak diukur.", na: "Pengukuran belum diaktifkan di situs, jadi tidak ada yang dikirim.",
+      stop: "Hentikan pengukuran", resume: "Aktifkan kembali pengukuran", updated: "Pembaruan terakhir: November 2026", home: "We Have Let So Many Qirats Slip Away",
+      draft: "Terjemahan awal, menunggu tinjauan. Teks Arab adalah acuan."
+    },
+    fr: {
+      title: "Confidentialité et mesure d’audience",
+      sections: [
+        ["Ce que nous mesurons et pourquoi", ["Nous mesurons l’utilisation du site de façon agrégée pour savoir quels hadiths suscitent l’intérêt, quelles langues ont besoin de plus de soutien et où l’expérience se bloque. Le but est d’améliorer le projet, non de surveiller les personnes.", "Nous utilisons un outil d’analyse respectueux de la vie privée (Umami), sans cookies ni identifiant persistant du visiteur."]],
+        ["Ce qui est envoyé", ["La page ouverte, la source générale de la visite, le type d’appareil, le navigateur et sa langue.", "Le pays, la région et la ville approximatifs déduits de l’adresse réseau ; l’adresse elle-même n’est pas conservée. La localisation peut être erronée avec un VPN.", "Des événements généraux : carte de hadith affichée, sens ouvert, ajout aux favoris, bouton de partage, changement de langue, avec seulement le code du hadith et la langue de l’interface.", "Dans le Défi familial : le type de défi, le niveau des questions, et des taux globaux d’achèvement et de bonnes réponses pour tout le conseil, sans nom ni identifiant."]],
+        ["Ce qui n’est jamais envoyé", ["Les noms des membres de la famille ou des conseils, leurs identifiants, les codes d’invitation, ni le choix de quiconque.", "Vos recherches ni aucun texte que vous saisissez.", "Votre position précise : nous ne demandons jamais l’accès GPS.", "Aucune publicité, aucun profil personnel, aucune déduction sur la religiosité ou les croyances, aucune empreinte d’appareil."]],
+        ["Ce qui reste sur votre appareil", ["Favoris, progression de lecture, taille du texte, langue et conseils familiaux restent dans votre navigateur et ne nous parviennent pas.", "Un petit marqueur « déjà venu » permet d’estimer la part de visiteurs qui reviennent ; il ne contient aucun identifiant."]],
+        ["Durée de conservation et lieu", ["Avec l’offre gratuite, les données agrégées sont conservées six mois puis supprimées automatiquement. Nous choisissons un stockage dans l’Union européenne lorsque c’est possible."]],
+        ["Enfants", ["Les enfants peuvent utiliser le Défi familial avec leur famille. Aucune donnée personnelle n’est collectée à leur sujet ; leurs résultats restent dans le conseil, sur l’appareil."]],
+        ["Vos droits", ["Vous pouvez arrêter la mesure sur cet appareil à tout moment avec le bouton ci-dessous ; le site fonctionne entièrement sans elle.", "Si votre navigateur envoie « Do Not Track » ou « Global Privacy Control », votre visite n’est pas mesurée.", "Pour toute question de confidentialité, contactez l’équipe du projet."]]
+      ],
+      ctl: "Arrêter la mesure sur cet appareil", on: "La mesure est active sur cet appareil (données agrégées et anonymes).", off: "La mesure est désactivée sur cet appareil.",
+      dnt: "Votre navigateur demande à ne pas être suivi : votre visite n’est pas mesurée.", na: "La mesure n’est pas encore activée sur le site : rien n’est envoyé.",
+      stop: "Arrêter la mesure", resume: "Réactiver la mesure", updated: "Dernière mise à jour : novembre 2026", home: "We Have Let So Many Qirats Slip Away",
+      draft: "Traduction initiale en attente de relecture. Le texte arabe fait foi."
+    }
+  };
+  var REG = window.QARARIT_LOCALES;
+  function pick() {
+    var m = /[?&]lang=([a-z]{2,3})/.exec(location.search), s = null;
+    try { s = localStorage.getItem("qararit.lang"); } catch (e) {}
+    return (m && TX[m[1]] && m[1]) || (s && TX[s] && s) || "ar";
+  }
+  function el(tag, text) { var e = document.createElement(tag); if (text != null) e.textContent = text; return e; }
+  var lang = pick();
+  function paint() {
+    var L = TX[lang], info = REG.list.filter(function (x) { return x.code === lang; })[0];
+    document.documentElement.lang = lang; document.documentElement.dir = info.dir;
+    document.title = L.title + " | " + L.home;
+    document.getElementById("title").textContent = L.title;
+    var home = document.getElementById("home");
+    home.textContent = L.home; home.href = lang === "ar" ? "../" : "../" + lang + "/";
+    var d = document.getElementById("draft"); d.textContent = L.draft; d.hidden = !L.draft;
+    var body = document.getElementById("body"); body.innerHTML = "";
+    L.sections.forEach(function (s) {
+      var sec = el("section"); sec.appendChild(el("h2", s[0]));
+      if (s[1].length === 1) sec.appendChild(el("p", s[1][0]));
+      else { var ul = el("ul"); s[1].forEach(function (x) { ul.appendChild(el("li", x)); }); sec.appendChild(ul); }
+      body.appendChild(sec);
+    });
+    document.getElementById("ctl-h").textContent = L.ctl;
+    var st = window.QA ? QA.status : null, btn = document.getElementById("ctl-btn"), msg = document.getElementById("ctl-status");
+    btn.hidden = false;
+    if (!st) { msg.textContent = L.na; btn.hidden = true; }
+    else if (st.dnt) { msg.textContent = L.dnt; btn.hidden = true; }
+    else if (st.optedOut) { msg.textContent = L.off; btn.textContent = L.resume; }
+    else { msg.textContent = st.configured ? L.on : L.na; btn.textContent = L.stop; }
+    document.getElementById("updated").textContent = L.updated;
+    var langs = document.getElementById("langs"); langs.innerHTML = "";
+    REG.list.forEach(function (x) {
+      var b = el("button", x.name); b.type = "button"; b.lang = x.code; b.setAttribute("aria-pressed", String(x.code === lang));
+      b.onclick = function () { lang = x.code; paint(); };
+      langs.appendChild(b);
+    });
+  }
+  document.getElementById("ctl-btn").onclick = function () {
+    if (!window.QA) return;
+    if (QA.status.optedOut) { QA.optIn(); location.reload(); } else { QA.optOut(); paint(); }
+  };
+  paint();
+})();
+</script>
+</body>
+</html>
