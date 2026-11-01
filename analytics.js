@@ -8,7 +8,7 @@
 
   var CONFIG = {
     provider: "umami",
-    websiteId: "",                                  // يُملأ بعد إنشاء حساب الأداة. فارغ = لا يُرسل شيء
+    websiteId: "567ae744-5347-4efc-9e97-40e432049317", // معرّف الموقع في Umami Cloud. فارغ = لا يُرسل شيء
     scriptUrl: "https://cloud.umami.is/script.js",
     domains: ["aalmozaien-blip.github.io"]          // لا يُقاس إلا الموقع المنشور، فلا تدخل تجارب الفريق المحلية
   };
